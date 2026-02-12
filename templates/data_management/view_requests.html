@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Access Requests - Blockchain Data Vault{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>🔐 Access Control Requests</h2>
+        <div class="filter-group">
+            <span style="margin-right: 10px;">Filter:</span>
+            <a href="?status=all" class="btn {% if status_filter == 'all' %}btn-primary{% else %}btn-outline{% endif %}"
+                style="padding: 5px 15px; font-size: 14px;">All</a>
+            <a href="?status=pending"
+                class="btn {% if status_filter == 'pending' %}btn-primary{% else %}btn-outline{% endif %}"
+                style="padding: 5px 15px; font-size: 14px;">Pending</a>
+            <a href="?status=approved"
+                class="btn {% if status_filter == 'approved' %}btn-primary{% else %}btn-outline{% endif %}"
+                style="padding: 5px 15px; font-size: 14px;">Approved</a>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Req #</th>
+                <th>Requestor</th>
+                <th>Target Data</th>
+                <th>Requested At</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>#{{ req.request_id }}</td>
+                <td>{{ req.user.username }}</td>
+                <td>{{ req.data_file.title }}</td>
+                <td>{{ req.requested_at|date:"M d, Y H:i" }}</td>
+                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                    title="{{ req.reason }}">{{ req.reason }}</td>
+                <td><span class="badge badge-{{ req.status }}">{{ req.status|title }}</span></td>
+                <td>
+                    {% if req.status == 'pending' %}
+                    <a href="{% url 'data_management:process_request' req.request_id %}" class="btn btn-primary"
+                        style="padding: 5px 10px; font-size: 12px;">Review</a>
+                    {% else %}
+                    <span style="color: #666; font-size: 12px;">By {{ req.processed_by.username }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center;">No requests found matching criteria</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .btn-outline {
+        background: white;
+        color: #667eea;
+        border: 1px solid #667eea;
+    }
+
+    .btn-outline:hover {
+        background: #f7fafc;
+    }
+</style>
+{% endblock %}

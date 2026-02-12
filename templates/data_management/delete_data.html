@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Asset | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div class="card"
+    style="max-width: 500px; margin: 80px auto; background-color: var(--card-bg); border: 1px solid var(--danger); text-align: center;">
+    <div style="font-size: 50px; margin-bottom: 20px;">⚠️</div>
+    <h2 style="color: var(--danger); margin-bottom: 15px;">Confirm Deletion</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 30px; line-height: 1.6;">
+        You are about to delete <strong>{{ data_file.title }}</strong> from the secure vault. This action will be logged
+        on the blockchain and cannot be easily undone.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 15px;">
+            <a href="{% url 'data_management:view_data' %}" class="btn btn-outline" style="flex: 1; padding: 14px;">Keep
+                File</a>
+            <button type="submit" class="btn btn-primary"
+                style="flex: 1; padding: 14px; background-color: var(--danger);">Confirm Delete</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

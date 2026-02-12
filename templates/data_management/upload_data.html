@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Asset | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="font-size: 24px; font-weight: 700;">Secure Asset Ingestion</h2>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto; background-color: var(--card-bg);">
+    <div style="margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+        <h3 class="card-title" style="color: var(--primary);">📤 Import New Document</h3>
+        <p style="color: var(--text-secondary); font-size: 14px;">Every upload triggers an immutable ledger entry on the
+            blockchain.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="card-grid" style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+            <div class="form-group">
+                <label>Document Title</label>
+                <input type="text" name="title" required placeholder="Enter descriptive name for the asset"
+                    style="width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px;">
+            </div>
+
+            <div class="form-group">
+                <label>Description & Purpose</label>
+                <textarea name="description" rows="4" placeholder="Detail the sensitivity and content..."
+                    style="width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; resize: none;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Select File</label>
+                <div
+                    style="border: 2px dashed var(--border-color); padding: 40px; text-align: center; border-radius: 12px; background: #ffffff02;">
+                    <input type="file" name="file" required style="cursor: pointer;">
+                    <p style="margin-top: 15px; font-size: 12px; color: var(--text-secondary);">
+                        Max: 10MB | PDF, DOCX, TXT, XLSX, CSV, IMAGE
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; gap: 15px; justify-content: flex-end;">
+            <a href="{% url 'data_management:view_data' %}" class="btn btn-outline"
+                style="padding: 12px 25px;">Discard</a>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 35px;">Authenticate & Upload</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

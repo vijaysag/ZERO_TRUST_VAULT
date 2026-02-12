@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Register | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div class="card"
+    style="max-width: 500px; margin: 50px auto; background-color: var(--card-bg); border: 1px solid var(--border-color);">
+    <h2 style="text-align: center; color: var(--primary); margin-bottom: 30px;">📝 Create Account</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" required placeholder="Choose a username">
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" required placeholder="your@email.com">
+        </div>
+
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone_number" placeholder="+91XXXXXXXXXX">
+        </div>
+
+        <div class="form-group">
+            <label>Account Type (Privileges)</label>
+            <select name="role"
+                style="width: 100%; background-color: transparent; border: none; border-bottom: 1px solid var(--border-color); padding: 10px 0; color: var(--text-main); font-size: 16px; outline: none;">
+                <option value="user" style="background-color: var(--card-bg);">Standard User</option>
+                <option value="admin" style="background-color: var(--card-bg);">Data Admin / Manager</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" required placeholder="Enter password">
+        </div>
+
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" name="password_confirm" required placeholder="Confirm password">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Register Account</button>
+
+        <p style="text-align: center; margin-top: 25px; color: var(--text-secondary); font-size: 14px;">
+            Already have an account? <a href="{% url 'login' %}"
+                style="color: var(--primary); text-decoration: none;">Login here</a>
+        </p>
+    </form>
+</div>
+{% endblock %}

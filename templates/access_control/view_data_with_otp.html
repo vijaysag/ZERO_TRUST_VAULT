@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Access | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="font-size: 24px; font-weight: 700;">Secure Resource Authorization</h2>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto; background-color: var(--card-bg);">
+
+    {% if step == 1 %}
+    <!-- Step 1: Initial Authorization Request -->
+    <div style="text-align: center; padding: 20px;">
+        <div style="font-size: 60px; margin-bottom: 25px;">🔐</div>
+        <h2 style="color: var(--text-main); margin-bottom: 15px;">Authorize Data Retrieval</h2>
+        <p
+            style="color: var(--text-secondary); margin-bottom: 35px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
+            You are about to pull a protected document from the vault. In accordance with **Zero-Trust protocols**, you
+            must verify your identity using your **Authenticator App**.
+        </p>
+
+        <div
+            style="background: #ffffff03; padding: 25px; border-radius: 12px; margin-bottom: 35px; text-align: left; border: 1px solid var(--border-color);">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <span style="display: block; color: var(--text-secondary); font-size: 12px;">DOCUMENT</span>
+                    <strong style="color: var(--primary);">{{ access_request.data_file.title }}</strong>
+                </div>
+                <div>
+                    <span style="display: block; color: var(--text-secondary); font-size: 12px;">AUTHORIZER</span>
+                    <strong style="color: var(--text-main);">{{ access_request.processed_by.username }}</strong>
+                </div>
+                <div>
+                    <span style="display: block; color: var(--text-secondary); font-size: 12px;">AUDIT STATUS</span>
+                    <strong style="color: var(--success); font-size: 12px;">CHAIN-LOGGED ✅</strong>
+                </div>
+                <div>
+                    <span style="display: block; color: var(--text-secondary); font-size: 12px;">SECURITY LEVEL</span>
+                    <strong style="color: var(--danger); font-size: 12px;">RESTRICTED 🔒</strong>
+                </div>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="step" value="1">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 18px; font-size: 16px;">Proceed
+                to Identity Verification</button>
+        </form>
+        <p style="margin-top: 20px;"><a href="{% url 'access_control:my_requests' %}"
+                style="color: var(--text-secondary); text-decoration: none; font-size: 14px;">← Back to requests</a></p>
+    </div>
+
+    {% elif step == 2 %}
+    <!-- Step 2: MFA Verification -->
+    <div style="text-align: center; padding: 20px;">
+        <div style="font-size: 60px; margin-bottom: 25px;">📱</div>
+        <h2 style="color: var(--text-main); margin-bottom: 15px;">MFA Verification</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 35px;">
+            Open your **Authenticator App** and enter the 6-digit verification code.
+        </p>
+
+        <form method="post" style="max-width: 450px; margin: 0 auto;">
+            {% csrf_token %}
+            <input type="hidden" name="step" value="2">
+            <div class="form-group" style="margin-bottom: 30px;">
+                <input type="text" name="otp_code" required maxlength="6"
+                    style="text-align: center; font-size: 32px; letter-spacing: 12px; height: 80px; border-bottom: 2px solid var(--primary);"
+                    autofocus placeholder="000000">
+            </div>
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; padding: 18px; font-size: 16px; background-color: var(--success);">Authenticate &
+                Unlock</button>
+        </form>
+    </div>
+
+    {% elif step == 3 %}
+    <!-- Step 3: Data Display -->
+    <div style="padding: 10px;">
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+            <div>
+                <h2 style="color: var(--text-main); font-size: 22px;">📄 {{ data_file.title }}</h2>
+                <p style="color: var(--text-secondary); font-size: 13px;">Authorized Access | Logged: {{
+                    access_request.access_granted_at|date:"M d, Y H:i:s" }}</p>
+            </div>
+            <a href="{% url 'access_control:download_data' access_request.request_id %}" class="btn btn-primary"
+                style="padding: 12px 25px;">Retrieve Object</a>
+        </div>
+
+        <div
+            style="background: #ffffff02; border-radius: 12px; padding: 35px; border: 1px solid var(--border-color); min-height: 250px;">
+            <h4
+                style="color: var(--text-secondary); font-size: 12px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">
+                Resource Metadata</h4>
+            <p style="line-height: 1.8; color: var(--text-main); font-size: 15px; margin-bottom: 40px;">{{
+                data_file.description|default:"No description provided for this document." }}</p>
+
+            <div style="margin-top: 40px; border-top: 1px solid #ffffff05; padding-top: 25px;">
+                <h4
+                    style="color: var(--text-secondary); font-size: 12px; margin-bottom: 20px; text-transform: uppercase;">
+                    Technical Specifications</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; font-size: 14px;">
+                    <div style="background: #00000020; padding: 15px; border-radius: 8px;">
+                        <span
+                            style="display: block; color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">FILENAME</span>
+                        <code style="color: var(--primary);">{{ data_file.file.name|slice:"11:" }}</code>
+                        <span
+                            style="display: block; color: var(--text-secondary); font-size: 11px; margin-top: 15px;">TYPE</span>
+                        <span style="font-weight: 700; color: var(--text-main);">{{ data_file.file_type|upper }}</span>
+                    </div>
+                    <div style="background: #00000020; padding: 15px; border-radius: 8px;">
+                        <span
+                            style="display: block; color: var(--text-secondary); font-size: 11px; margin-bottom: 5px;">OBJECT
+                            SIZE</span>
+                        <span style="font-weight: 700; color: var(--text-main);">{{ data_file.file_size|filesizeformat
+                            }}</span>
+                        <span
+                            style="display: block; color: var(--text-secondary); font-size: 11px; margin-top: 15px;">BLOCKCHAIN
+                            PROOF</span>
+                        <code
+                            style="font-size: 10px; color: var(--success);">{{ access_request.blockchain_access_tx|truncatechars:20|default:"VERIFIED ACCESS" }}</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center;">
+            <a href="{% url 'access_control:user_dashboard' %}" class="btn btn-outline"
+                style="padding: 12px 30px;">Terminate Secure Session</a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

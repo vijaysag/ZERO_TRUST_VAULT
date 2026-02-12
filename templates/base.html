@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Blockchain Data Vault{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="{% if not user.is_authenticated or hide_sidebar %}no-sidebar{% endif %}">
+    {% if user.is_authenticated and not hide_sidebar %}
+    <div class="sidebar">
+        <div class="logo">
+            <span>🛡️</span> ZeroTrustVault
+        </div>
+
+        <nav>
+            {% if user.is_admin %}
+            <a href="{% url 'data_management:admin_dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="{% url 'data_management:view_data' %}" class="nav-item">
+                <span>📁</span> Repo Management
+            </a>
+            <a href="{% url 'data_management:view_requests' %}" class="nav-item">
+                <span>📑</span> Access Requests
+            </a>
+            {% else %}
+            <a href="{% url 'access_control:user_dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="{% url 'access_control:browse_data' %}" class="nav-item">
+                <span>📁</span> Available Data
+            </a>
+            <a href="{% url 'access_control:my_requests' %}" class="nav-item">
+                <span>📋</span> My Requests
+            </a>
+            <a href="{% url 'access_control:user_dashboard' %}" class="nav-item">
+                <span>🔓</span> Accessible Data
+            </a>
+            {% endif %}
+
+            <a href="{% url 'profile' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <span>👤</span> My Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="color: var(--danger);">
+                <span>🚪</span> Logout
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="{% if user.is_authenticated and not hide_sidebar %}main-wrapper{% else %}container{% endif %}">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}"
+            style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background: #ffffff10;">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}My Access Requests | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="font-size: 24px; font-weight: 700;">My Access Requests</h2>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h3 class="card-title" style="margin-bottom: 0;">📋 Request History</h3>
+        <a href="{% url 'access_control:browse_data' %}" class="btn btn-primary"
+            style="font-size: 14px; padding: 10px 20px;">Browse Repository</a>
+    </div>
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ffffff05;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #ed893620;
+            color: #ed8936;
+        }
+
+        .status-approved {
+            background: #48bb7820;
+            color: #48bb78;
+        }
+
+        .status-accessed {
+            background: #805ad520;
+            color: #805ad5;
+        }
+
+        .status-rejected {
+            background: #f5656520;
+            color: #f56565;
+        }
+    </style>
+
+    <table>
+        <thead>
+            <tr>
+                <th>DATA ASSET</th>
+                <th>REQUESTED</th>
+                <th>STATUS</th>
+                <th>LOG STATUS</th>
+                <th>ACTIONS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>
+                    <strong style="color: var(--text-main);">{{ req.data_file.title }}</strong>
+                    <br><code style="font-size: 10px; opacity: 0.6;">{{ req.data_file.data_id|truncatechars:12 }}</code>
+                </td>
+                <td style="color: var(--text-secondary);">{{ req.requested_at|date:"M d, Y H:i" }}</td>
+                <td>
+                    <span class="status-badge status-{{ req.status }}">{{ req.status }}</span>
+                </td>
+                <td>
+                    {% if req.blockchain_request_tx %}
+                    <span title="{{ req.blockchain_request_tx }}"
+                        style="color: var(--success); font-size: 11px; cursor: help;">ON-CHAIN ✅</span>
+                    {% else %}
+                    <span style="color: var(--text-secondary); opacity: 0.5; font-size: 11px;">PENDING LOG</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if req.status == 'approved' %}
+                    <a href="{% url 'access_control:view_data_with_otp' req.request_id %}" class="btn btn-primary"
+                        style="padding: 6px 16px; font-size: 12px;">Authorize View</a>
+                    {% elif req.status == 'accessed' %}
+                    <a href="{% url 'access_control:view_data_with_otp' req.request_id %}" class="btn btn-outline"
+                        style="padding: 6px 16px; font-size: 12px; color: var(--primary); border-color: var(--primary);">Re-view
+                        Asset</a>
+                    {% else %}
+                    <span style="color: var(--text-secondary); font-size: 12px;">Waiting...</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 50px;">You haven't
+                    initiated any access requests.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="margin-top: 30px; border-left: 4px solid var(--primary);">
+    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 10px;">🛡️ Zero-Trust
+        Verification</h3>
+    <p style="color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
+        Every document access is governed by **Multi-Factor Authentication** and **Blockchain Logging**. Even with Admin
+        approval, you must verify your identity via OTP before the vault decrypts and serves the asset.
+    </p>
+</div>
+{% endblock %}

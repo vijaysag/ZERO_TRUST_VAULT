@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Modify Asset | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="font-size: 24px; font-weight: 700;">Edit Resource</h2>
+</div>
+
+<div class="card" style="max-width: 700px; margin: 0 auto; background-color: var(--card-bg);">
+    <div style="margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+        <h3 class="card-title" style="color: var(--warning);">✏️ Update Metadata</h3>
+        <p style="color: var(--text-secondary); font-size: 14px;">Updating the title or description will be logged for
+            audit trails.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Document Title</label>
+            <input type="text" name="title" value="{{ data_file.title }}" required
+                style="width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px;">
+        </div>
+
+        <div class="form-group">
+            <label>Description & Purpose</label>
+            <textarea name="description" rows="6"
+                style="width: 100%; padding: 12px; background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; resize: none;">{{ data_file.description }}</textarea>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; gap: 15px; justify-content: flex-end;">
+            <a href="{% url 'data_management:view_data' %}" class="btn btn-outline" style="padding: 12px 25px;">Back to
+                Repo</a>
+            <button type="submit" class="btn btn-primary"
+                style="padding: 12px 35px; background-color: var(--warning);">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

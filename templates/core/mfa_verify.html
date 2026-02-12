@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify MFA | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div class="card"
+    style="max-width: 450px; margin: 80px auto; background-color: var(--card-bg); border: 1px solid var(--border-color); text-align: center;">
+    <div style="font-size: 40px; margin-bottom: 20px;">🛡️</div>
+    <h2 style="color: var(--text-main); margin-bottom: 10px;">Security Verification</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 14px;">
+        Open your authenticator app and enter the 6-digit verification code.
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group" style="margin-bottom: 30px;">
+            <input type="text" name="otp_code" required maxlength="6"
+                style="text-align: center; font-size: 28px; letter-spacing: 12px; height: 70px; border-bottom: 2px solid var(--primary);"
+                placeholder="000000" autofocus>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 16px;">Verify
+            Identity</button>
+    </form>
+
+    <p style="margin-top: 30px; font-size: 13px; color: var(--text-secondary);">
+        Need help? <a href="{% url 'login' %}" style="color: var(--primary); text-decoration: none;">Try logging in
+            again</a>
+    </p>
+</div>
+{% endblock %}

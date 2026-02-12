@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="font-size: 24px; font-weight: 700;">My Profile</h2>
+</div>
+
+<div class="card-grid">
+    <!-- Profile Information Card -->
+    <div class="card">
+        <h3 class="card-title">Profile Information</h3>
+
+        <div class="profile-header">
+            <div class="avatar">
+                {{ user.username|first|upper }}
+            </div>
+            <div>
+                <h3 style="font-size: 20px;">{{ user.username }}</h3>
+                <p style="color: var(--text-secondary); font-size: 14px;">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <span style="color: var(--text-secondary);">Username</span>
+            <span>@{{ user.username }}</span>
+        </div>
+        <div class="info-row">
+            <span style="color: var(--text-secondary);">Role</span>
+            <span>{{ user.role|upper }}</span>
+        </div>
+        <div class="info-row">
+            <span style="color: var(--text-secondary);">Phone</span>
+            <span>{{ user.phone_number|default:"+91XXXXXXXXXX" }}</span>
+        </div>
+        <div class="info-row">
+            <span style="color: var(--text-secondary);">Member Since</span>
+            <span>{{ user.created_at|date:"M d, Y" }}</span>
+        </div>
+    </div>
+
+    <!-- Security Settings Card -->
+    <div class="card">
+        <h3 class="card-title">🔐 Security Settings</h3>
+
+        <div class="status-item">
+            <div>
+                <span class="status-label">Two-Factor Authentication</span>
+                <span class="status-sub">Add an extra layer of security to your account</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                {% if user.two_factor_enabled %}
+                <span style="color: var(--success); font-size: 12px; font-weight: 600;">Active ✅</span>
+                <form action="{% url 'toggle_2fa' %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline"
+                        style="padding: 6px 16px; font-size: 12px; border-color: var(--danger); color: var(--danger);">Disable</button>
+                </form>
+                {% else %}
+                <span style="color: var(--danger); font-size: 12px; font-weight: 600;">Disabled ❌</span>
+                <form action="{% url 'toggle_2fa' %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary"
+                        style="padding: 6px 16px; font-size: 12px;">Enable</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="status-item">
+            <div>
+                <span class="status-label">Blockchain Registration (MetaMask)</span>
+                <span class="status-sub">Link your identity on the Ethereum network</span>
+            </div>
+            <div id="wallet-status-container">
+                {% if user.wallet_address %}
+                <span style="color: var(--success); font-size: 12px; font-weight: 600;">Registered ✅</span>
+                {% else %}
+                <button onclick="connectMetaMask()" class="btn btn-primary" id="connect-wallet-btn"
+                    style="padding: 6px 16px; font-size: 12px; background-color: var(--warning);">Register with
+                    MetaMask</button>
+                <form id="wallet-form" action="{% url 'register_blockchain' %}" method="POST" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="wallet_address" id="wallet-address-input">
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="status-item">
+            <div>
+                <span class="status-label">Wallet Address</span>
+                <span class="status-sub">Connected blockchain wallet</span>
+            </div>
+            <div style="text-align: right;">
+                {% if user.wallet_address %}
+                <code style="font-size: 11px; color: var(--primary);">{{ user.wallet_address }}</code>
+                {% else %}
+                <span id="display-wallet-address" style="color: var(--text-secondary); font-size: 12px;">Not
+                    connected</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isConnecting = false;
+
+    async function connectMetaMask() {
+        if (isConnecting) return;
+
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                isConnecting = true;
+                const btn = document.getElementById('connect-wallet-btn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = 'Connecting...';
+                    btn.style.opacity = '0.7';
+                }
+
+                // Check if already connected but just need to register
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                let account = accounts.length > 0 ? accounts[0] : null;
+
+                if (!account) {
+                    // Start connection request if no accounts already known
+                    const newAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    account = newAccounts[0];
+                }
+
+                if (account) {
+                    const display = document.getElementById('display-wallet-address');
+                    if (display) display.innerText = account;
+
+                    const input = document.getElementById('wallet-address-input');
+                    if (input) input.value = account;
+
+                    document.getElementById('wallet-form').submit();
+                }
+            } catch (error) {
+                console.error(error);
+                // Handle the "already pending" case specifically
+                if (error.code === -32002) {
+                    alert('MetaMask request already pending. Please open your MetaMask extension and approve the request manually.');
+                } else {
+                    alert('Connection failed: ' + error.message);
+                }
+
+                const btn = document.getElementById('connect-wallet-btn');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Register with MetaMask';
+                    btn.style.opacity = '1';
+                }
+            } finally {
+                isConnecting = false;
+            }
+        } else {
+            alert('MetaMask is not installed. Please install it to register on the blockchain.');
+        }
+    }
+</script>
+
+{% if not user.wallet_address %}
+<!-- Wallet Check Modal -->
+<div id="walletModal" class="modal-overlay">
+    <div class="modal">
+        <div style="font-size: 48px; margin-bottom: 20px;">🦊</div>
+        <h2 style="margin-bottom: 15px;">MetaMask Required</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 25px;">
+            To access secure data, you must link your MetaMask wallet for blockchain auditing.
+        </p>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="connectMetaMask()" class="btn btn-primary" style="flex: 1;">Connect MetaMask Now</button>
+            <button type="button" onclick="document.getElementById('walletModal').style.display='none'"
+                class="btn btn-outline" style="flex: 1;">Later</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

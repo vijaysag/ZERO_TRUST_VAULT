@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Setup MFA | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div class="card"
+    style="max-width: 500px; margin: 50px auto; background-color: var(--card-bg); border: 1px solid var(--border-color); text-align: center;">
+    <h2 style="color: var(--primary); margin-bottom: 20px;">🛡️ Secure Your Account</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 14px;">
+        To protect your data, mandatory Multi-Factor Authentication is required.
+    </p>
+
+    <div style="background: white; padding: 20px; border-radius: 12px; display: inline-block; margin-bottom: 25px;">
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" style="width: 200px; height: 200px;">
+    </div>
+
+    <div style="text-align: left; background: #ffffff0a; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <p style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Steps to setup:</p>
+        <ol style="font-size: 13px; color: var(--text-secondary); padding-left: 20px; line-height: 1.6;">
+            <li>Open Google Authenticator or Microsoft Authenticator.</li>
+            <li>Scan the QR code above or enter secret manually: <br><code
+                    style="color: var(--primary); font-weight: 700;">{{ secret }}</code></li>
+            <li>Enter the 6-digit code shown in the app below.</li>
+        </ol>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label style="display: block; text-align: center;">Verification Code</label>
+            <input type="text" name="otp_code" required maxlength="6"
+                style="text-align: center; font-size: 24px; letter-spacing: 8px; height: 60px; border-bottom: 2px solid var(--primary);"
+                placeholder="000000" autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">Verify and Link App</button>
+    </form>
+</div>
+{% endblock %}

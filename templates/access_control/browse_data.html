@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Vault | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="font-size: 24px; font-weight: 700;">Secure Data Archive</h2>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h3 class="card-title" style="margin-bottom: 0;">🏢 Available Repositories</h3>
+        <p style="color: var(--text-secondary); font-size: 14px;">Found {{ files|length }} objects in vault</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;">
+        {% for file in files %}
+        <div class="vault-card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
+                <span class="file-badge">{{ file.file_type|upper }}</span>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></div>
+                    <span style="color: var(--success); font-size: 11px; font-weight: 700;">ON-CHAIN</span>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 10px; font-size: 18px; color: var(--text-main);">{{ file.title }}</h3>
+            <p class="file-desc">
+                {{ file.description|default:"No description provided for this secure document." }}
+            </p>
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ffffff05; padding-top: 18px; margin-top: 10px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 12px; color: var(--text-secondary);">Size</span>
+                    <span style="font-size: 13px; font-weight: 600;">{{ file.file_size|filesizeformat }}</span>
+                </div>
+
+                {% if file.id in user_requests %}
+                <span
+                    style="color: var(--text-secondary); font-size: 12px; font-weight: 600; background: #ffffff0a; padding: 8px 15px; border-radius: 6px;">Requested</span>
+                {% else %}
+                <a href="{% url 'access_control:request_data_access' file.data_id %}" class="btn btn-primary"
+                    style="padding: 8px 18px; font-size: 13px;">Request Access</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px;">
+            <div style="font-size: 48px; margin-bottom: 20px;">🕳️</div>
+            <p style="color: var(--text-secondary);">The vault is currently empty.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .vault-card {
+        background: #ffffff03;
+        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 24px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .vault-card:hover {
+        background: #ffffff05;
+        border-color: var(--primary);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px -10px rgba(128, 90, 213, 0.2);
+    }
+
+    .file-badge {
+        font-size: 10px;
+        background: var(--primary);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .file-desc {
+        color: var(--text-secondary);
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        height: 60px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+</style>
+{% endblock %}

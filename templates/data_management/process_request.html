@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Process Request - Blockchain Data Vault{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <h2>⚖️ Review Access Request</h2>
+    <p style="color: #666; margin-bottom: 30px;">Evaluate the request below and provide your decision. All decisions are
+        logged on the blockchain.</p>
+
+    <div
+        style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; background: #f8fafc; padding: 20px; border-radius: 8px;">
+        <div>
+            <h4 style="color: #4a5568; margin-bottom: 10px;">User Details</h4>
+            <p><strong>Username:</strong> {{ access_request.user.username }}</p>
+            <p><strong>Email:</strong> {{ access_request.user.email }}</p>
+            <p><strong>Wallet:</strong> <code style="font-size: 11px;">{{ access_request.user.wallet_address }}</code>
+            </p>
+        </div>
+        <div>
+            <h4 style="color: #4a5568; margin-bottom: 10px;">Data Requested</h4>
+            <p><strong>Title:</strong> {{ access_request.data_file.title }}</p>
+            <p><strong>ID:</strong> {{ access_request.data_file.data_id }}</p>
+            <p><strong>Requested On:</strong> {{ access_request.requested_at|date:"F d, Y H:i" }}</p>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+        <h4 style="color: #4a5568; margin-bottom: 10px;">Reason for Request</h4>
+        <div
+            style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 5px; font-style: italic;">
+            "{{ access_request.reason }}"
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="admin_notes">Admin Notes (Optional)</label>
+            <textarea id="admin_notes" name="admin_notes" rows="3"
+                placeholder="Provide context for your decision..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button type="submit" name="action" value="approve" class="btn btn-success" style="flex: 1;">Approve
+                Access</button>
+            <button type="submit" name="action" value="reject" class="btn btn-danger" style="flex: 1;">Reject
+                Request</button>
+            <a href="{% url 'data_management:view_requests' %}" class="btn"
+                style="background: #e2e8f0; color: #4a5568;">Back</a>
+        </div>
+    </form>
+
+    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <p style="font-size: 13px; color: #718096;">
+            <strong>Note:</strong> Approving this request will trigger an OTP generation for the user. They will be
+            required to enter that OTP before they can actually view or download the data.
+        </p>
+    </div>
+</div>
+{% endblock %}

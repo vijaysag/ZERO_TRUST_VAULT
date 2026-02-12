@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Request Access | ZeroTrustVault{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="font-size: 24px; font-weight: 700;">Initiate Access Protocol</h2>
+</div>
+
+<div class="card" style="max-width: 700px; margin: 0 auto; background-color: var(--card-bg);">
+    <div
+        style="text-align: center; margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 30px;">
+        <div style="font-size: 50px; margin-bottom: 20px;">🛡️</div>
+        <h2 style="color: var(--text-main); margin-bottom: 10px;">Request Secure Access</h2>
+        <p style="color: var(--text-secondary); font-size: 14px; max-width: 500px; margin: 0 auto; line-height: 1.6;">
+            Access to this document requires multi-tier approval. Your justification will be immutable and recorded on
+            the blockchain ledger.
+        </p>
+    </div>
+
+    <div
+        style="background: #ffffff02; padding: 25px; border-radius: 12px; margin-bottom: 35px; border: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: flex-start; gap: 15px;">
+            <div style="font-size: 24px;">📄</div>
+            <div style="flex: 1;">
+                <h4 style="margin-bottom: 5px; color: var(--primary);">{{ data_file.title }}</h4>
+                <p style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">OBJECT ID: <code
+                        style="color: var(--text-main);">{{ data_file.data_id }}</code></p>
+                <div style="display: flex; gap: 15px; font-size: 12px; color: var(--text-secondary); font-weight: 600;">
+                    <span>SIZE: {{ data_file.file_size|filesizeformat }}</span>
+                    <span>TYPE: {{ data_file.file_type|upper }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label style="color: var(--text-main); font-weight: 600;">Justification of Need</label>
+            <textarea id="reason" name="reason" rows="5" required
+                placeholder="Declare your business or security purpose for this retrieval request..."
+                style="width: 100%; padding: 15px; background: #00000020; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; resize: none; margin-top: 10px;"></textarea>
+            <p style="margin-top: 10px; font-size: 11px; color: var(--text-secondary);">
+                ⚠️ This declaration is permanent and will be audited by the Trust Engine.
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 40px;">
+            <a href="{% url 'access_control:browse_data' %}" class="btn btn-outline"
+                style="flex: 1; padding: 15px;">Cancel Request</a>
+            <button type="submit" class="btn btn-primary" style="flex: 1; padding: 15px; font-size: 15px;">Submit to
+                Blockchain</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
